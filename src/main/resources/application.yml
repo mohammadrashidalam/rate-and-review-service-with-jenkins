@@ -1,0 +1,29 @@
+server:
+  port: 8282
+spring:
+  application:
+    name: rate-review-service
+  data:
+    mongodb:
+      database: reviewdb
+      host: localhost
+      port: 27017
+      auto-index-creation: true
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, info, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+info:
+  app:
+    name: Rate And Review Service
+    description: Service for managing rate and review data
+    version: 1.0.0
+  company: SellerHubKart project
+

@@ -1,0 +1,17 @@
+com\alam\review\api\controlleradvice\ReviewServiceGlobalException.class
+com\alam\review\api\dto\ReviewSummaryDto.class
+com\alam\review\api\exception\DuplicateReviewFoundException.class
+com\alam\review\api\service\impl\ReviewServiceImpl.class
+com\alam\review\api\dto\CustomResponseDto$CustomResponseDtoBuilder.class
+com\alam\review\api\dto\CustomResponseDto.class
+com\alam\review\api\exception\ReviewNotFoundException.class
+com\alam\review\api\controller\ReviewController.class
+com\alam\review\api\repository\ReviewRepository.class
+com\alam\review\api\constant\RatingEnum.class
+com\alam\review\api\dto\ReviewDto$ReviewDtoBuilder.class
+com\alam\review\api\dto\ReviewSummaryDto$ReviewSummaryDtoBuilder.class
+com\alam\review\api\dto\ReviewDto.class
+com\alam\review\api\entity\Review.class
+com\alam\review\api\RateAndReviewServiceApplication.class
+com\alam\review\api\entity\Review$ReviewBuilder.class
+com\alam\review\api\service\ReviewService.class

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.alam.review.api.RateAndReviewServiceApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.58 s -- in com.alam.review.api.RateAndReviewServiceApplicationTests
