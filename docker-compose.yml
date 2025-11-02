@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # 🟣 MongoDB Service
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: rate_review_db
+    volumes:
+      - mongo_data:/data/db
+
+  # 🟢 Rate and Review Microservice
+  rate-review-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rate-review-service
+    ports:
+      - "8282:8282"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/rate_review_db
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:
