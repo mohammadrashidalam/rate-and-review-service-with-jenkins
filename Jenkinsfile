@@ -124,7 +124,7 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo 🟢 Starting Spring Boot service...
-                        powershell -Command "Start-Process 'cmd.exe' '/c java -jar rate-and-review-service.jar >> C:\deployments\rate-service\service.log 2>&1' -NoNewWindow"
+                        powershell -Command "Start-Process 'cmd.exe' '/c java -jar rate-and-review-service.jar >> C:\\deployments\\rate-service\\service.log 2>&1' -NoNewWindow"
 
                         echo ✅ Application launch command executed.
 
