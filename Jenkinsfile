@@ -51,9 +51,13 @@ pipeline {
                         """
 
                         // Start new version
-                         echo "🧪 start rate and service application..."
-                         bat '"%DEPLOY_DIR%\\start.bat"'
-            }
+                         // Small wait to release file lock
+                        bat 'timeout /t 5 >nul'
+
+                        // Start service
+                        echo '🟢 Starting new Rate-Service...'
+                        bat '"%DEPLOY_DIR%\\start.bat"'
+}
         }
     }
 
