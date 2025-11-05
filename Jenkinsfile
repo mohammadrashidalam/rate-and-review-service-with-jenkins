@@ -40,10 +40,7 @@ pipeline {
                  // Stop only the old Rate-Service running on port 8282
                 bat '''
                 echo Stopping old service if running...
-                 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
-                            echo Killing process on port 8282 (PID %%a)...
-                            taskkill /F /PID %%a
-                        ) || echo No old process found
+                  bat 'for /f "tokens=5" %a in (\'netstat -ano ^| findstr :8282\') do taskkill /F /PID %a || echo No old process found'
                 '''
 
                 // Copy the new jar file to deploy directory
