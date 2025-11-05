@@ -40,22 +40,22 @@ pipeline {
             steps {
                 echo "🚀 Deploying Rate-Service..."
 
-                // 🧱 Stop only old Rate-Service process running on port 8282
-                bat """for /f "tokens=5" %a in ('netstat -ano ^| findstr :8282') do taskkill /F /PID %a || echo No old process found"""
+                        // Stop old app safely
+                        bat '"%DEPLOY_DIR%\\stop.bat"'
 
-                // 🧱 Copy the new jar file
-                bat """
-                echo Copying new JAR file...
-                if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
-                copy target\\rate-service.jar "%DEPLOY_DIR%" /Y
-                """
+                        // Copy new JAR
+                        bat """
+                        echo Copying new JAR file...
+                        if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
+                        copy target\\rate-service.jar "%DEPLOY_DIR%" /Y
+                        """
 
-                // 🧱 Start the new version
-                bat """
-                echo Starting new Rate-Service application...
-                cd "%DEPLOY_DIR%"
-                start java -jar rate-service.jar
-                """
+                        // Start new version
+                        bat """
+                        echo Starting new Rate-Service application...
+                        cd "%DEPLOY_DIR%"
+                        start java -jar rate-service.jar
+                        """
             }
         }
     }
