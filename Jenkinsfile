@@ -51,11 +51,8 @@ pipeline {
                         """
 
                         // Start new version
-                        bat """
-                        echo Starting new Rate-Service application...
-                        cd "%DEPLOY_DIR%"
-                        start java -jar rate-and-review-service.jar
-                        """
+                         echo "🧪 start rate and service application..."
+                         bat '"%DEPLOY_DIR%\\start.bat"'
             }
         }
     }
