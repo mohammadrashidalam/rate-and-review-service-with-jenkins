@@ -52,7 +52,7 @@ pipeline {
 
                         // Start new version
                          // Small wait to release file lock
-                        bat 'timeout /t 5 >nul'
+                        bat 'ping -n 6 127.0.0.1 >nul'
 
                         // Start service
                         echo '🟢 Starting new Rate-Service...'
