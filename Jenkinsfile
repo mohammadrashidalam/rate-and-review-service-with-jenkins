@@ -100,6 +100,43 @@ pipeline {
                 }
             }
         }
+        stage('🚚 Deploy and Start New JAR') {
+            steps {
+                script {
+                    try {
+                        echo "🚀 Deploying new JAR and starting Spring Boot service..."
+
+                        bat """
+                        setlocal
+                        set DEPLOY_DIR=${DEPLOY_DIR}
+                        set APP_JAR=${APP_JAR}
+
+                        echo Deploying new JAR to "%DEPLOY_DIR%"...
+                        if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
+
+                        if exist "target\\%APP_JAR%" (
+                            copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
+                            echo ✅ New JAR copied successfully.
+                        ) else (
+                            echo ❌ ERROR: JAR not found in target folder!
+                            exit /b 1
+                        )
+
+                        cd "%DEPLOY_DIR%"
+                        echo 🟢 Starting Spring Boot service...
+                        cmd /c "start /B javaw -jar %APP_JAR% >> service.log 2>&1"
+                        echo ✅ Application launch command executed.
+
+                        ping -n 6 127.0.0.1 >nul
+                        endlocal
+                        """
+                    } catch (err) {
+                        error("❌ Deployment or Startup Failed: ${err.getMessage()}")
+                    }
+                }
+            }
+        }
+
     }
 
     post {
