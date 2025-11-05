@@ -136,7 +136,43 @@ pipeline {
                 }
             }
         }
+        stage('🩺 Verify Application Health') {
+            steps {
+                script {
+                    try {
+                        echo "🩺 Checking if Rate-Service is UP and healthy..."
 
+                        // Give it a few seconds to start
+                        bat 'ping -n 8 127.0.0.1 >nul'
+
+                        // Perform the health check
+                        bat """
+                        echo Checking health at http://localhost:8282/actuator/health ...
+                        curl -s http://localhost:8282/actuator/health > health.txt
+
+                        if exist health.txt (
+                            findstr /C:"UP" health.txt >nul
+                            if %errorlevel%==0 (
+                                echo ✅ Application is UP and running.
+                                type health.txt
+                                exit /b 0
+                            ) else (
+                                echo ❌ Application health check failed — status not UP.
+                                type health.txt
+                                exit /b 1
+                            )
+                        ) else (
+                            echo ❌ Health check file not found — CURL might have failed.
+                            exit /b 1
+                        )
+                        """
+                    } catch (err) {
+                        echo "⚠️ Health Check Warning: ${err.getMessage()}"
+                        echo "🚨 Application might not have started correctly. Please check service.log for details."
+                    }
+                }
+            }
+        }
     }
 
     post {
