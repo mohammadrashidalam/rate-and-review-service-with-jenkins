@@ -124,7 +124,8 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo 🟢 Starting Spring Boot service...
-                        cmd /c "start /B javaw -jar %APP_JAR% >> service.log 2>&1"
+                        java -jar %APP_JAR%
+
                         echo ✅ Application launch command executed.
 
                         ping -n 6 127.0.0.1 >nul
