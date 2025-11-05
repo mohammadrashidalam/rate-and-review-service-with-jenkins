@@ -37,10 +37,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying application..."
-                // Stop old process (if running)
+                 // Stop only the old Rate-Service running on port 8282
                 bat '''
                 echo Stopping old service if running...
-                taskkill /F /IM java.exe || echo No old process found
+                 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
+                            echo Killing process on port 8282 (PID %%a)...
+                            taskkill /F /PID %%a
+                        ) || echo No old process found
                 '''
 
                 // Copy the new jar file to deploy directory
