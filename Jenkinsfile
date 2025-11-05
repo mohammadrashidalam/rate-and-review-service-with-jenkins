@@ -111,36 +111,42 @@ pipeline {
                         set DEPLOY_DIR=${DEPLOY_DIR}
                         set APP_JAR=${APP_JAR}
 
-                        echo Deploying new JAR to "%DEPLOY_DIR%"...
+                        echo [INFO] Deploying new JAR to "%DEPLOY_DIR%"...
                         if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
 
                         if exist "target\\%APP_JAR%" (
                             copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
-                            echo ✅ New JAR copied successfully.
+                            echo [SUCCESS] New JAR copied successfully.
                         ) else (
-                            echo ❌ ERROR: JAR not found in target folder!
+                            echo [ERROR] JAR not found in target folder!
                             exit /b 1
                         )
 
-                     :: ✅ Check if MongoDB is running
-                        echo Checking MongoDB service on port 27017...
+                        echo [INFO] Checking MongoDB service on port 27017...
                         netstat -ano | findstr :27017 >nul
                         if %errorlevel% neq 0 (
-                            echo ❌ MongoDB not running! Please start MongoDB before deploying. >> service.log
-                            echo ❌ Deployment stopped due to missing MongoDB instance.
+                            echo [ERROR] MongoDB not running! Please start MongoDB before deploying. >> service.log
+                            echo [ERROR] Deployment stopped due to missing MongoDB instance.
                             exit /b 1
                         ) else (
-                            echo ✅ MongoDB is running on port 27017. Proceeding with app start... >> service.log
+                            echo [INFO] MongoDB is running on port 27017. Proceeding with app start... >> service.log
                         )
 
                         cd "%DEPLOY_DIR%"
-                        echo 🟢 Starting Spring Boot service...
+                        echo [INFO] Starting Spring Boot service...
                         start "RateService" /MIN cmd /c "java -jar rate-and-review-service.jar >> service.log 2>&1"
 
-                        echo ✅ Application launch command executed.
-
                         ping -n 6 127.0.0.1 >nul
+
+                        curl -s http://localhost:8282/actuator/health | findstr /C:"UP" >nul
+                        if %errorlevel%==0 (
+                            echo [SUCCESS] Application is running and healthy.
+                        ) else (
+                            echo [WARN] Application might not be up yet. Check service.log for details.
+                        )
+
                         exit /b 0
+                        endlocal
                         """
                     } catch (err) {
                         error("❌ Deployment or Startup Failed: ${err.getMessage()}")
@@ -148,6 +154,7 @@ pipeline {
                 }
             }
         }
+
         stage('🩺 Verify Application Health') {
             steps {
                 script {
