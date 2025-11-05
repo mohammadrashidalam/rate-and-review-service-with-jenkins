@@ -2,66 +2,67 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven'     // Configure Maven in Jenkins (Manage Jenkins → Global Tool Configuration)
-        jdk 'JDK17'            // Configure JDK in Jenkins with this name
+        maven 'maven'      // Must match the Maven name in Global Tool Configuration
+        jdk 'JDK17'        // Must match the JDK name in Global Tool Configuration
     }
 
     environment {
         APP_NAME = "rate-service"
-        DEPLOY_DIR = "C:\\deployments\\rate-service"  // Change this to your deploy folder
+        DEPLOY_DIR = "C:\\deployments\\rate-service"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                echo "Pulling latest code from Git..."
-                git branch: 'main', url: 'https://github.com/mohammadrashidalam/rate-and-review-service-with-jenkins.git'
+                echo "📥 Pulling latest code from Git..."
+                git branch: 'main', url: 'https://github.com/your-repo/rate-service.git'
             }
         }
 
         stage('Build') {
             steps {
-                echo "Building the application..."
+                echo "🏗️ Building the application..."
                 bat 'mvn clean package -DskipTests=true'
+                 echo "🧪 Finish building the application..."
             }
         }
 
         stage('Test') {
             steps {
-                echo "Running unit tests..."
+                echo "🧪 Running unit tests script..."
                 bat 'mvn test'
+                 echo "🧪 Finish unit tests script..."
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploying application..."
-                 // Stop only the old Rate-Service running on port 8282
-                bat '''
-                echo Stopping old service if running...
-                  bat 'for /f "tokens=5" %a in (\'netstat -ano ^| findstr :8282\') do taskkill /F /PID %a || echo No old process found'
-                '''
+                echo "🚀 Deploying Rate-Service..."
 
-                // Copy the new jar file to deploy directory
-                bat '''
-                echo Copying new jar file...
+                // 🧱 Stop only old Rate-Service process running on port 8282
+                bat """for /f "tokens=5" %a in ('netstat -ano ^| findstr :8282') do taskkill /F /PID %a || echo No old process found"""
+
+                // 🧱 Copy the new jar file
+                bat """
+                echo Copying new JAR file...
                 if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
-                copy target\\rate-service.jar "%DEPLOY_DIR%"
-                '''
+                copy target\\rate-service.jar "%DEPLOY_DIR%" /Y
+                """
 
-                // Start the new version
-                bat '''
-                echo Starting new service...
-                start java -jar "%DEPLOY_DIR%\\rate-service.jar"
-                '''
+                // 🧱 Start the new version
+                bat """
+                echo Starting new Rate-Service application...
+                cd "%DEPLOY_DIR%"
+                start java -jar rate-service.jar
+                """
             }
         }
     }
 
     post {
         success {
-            echo "✅ Deployment successful!"
+            echo "✅ Build and Deployment successful!"
         }
         failure {
             echo "❌ Build or Deployment failed!"
