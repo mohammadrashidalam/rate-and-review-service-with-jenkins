@@ -71,6 +71,35 @@ pipeline {
                 }
             }
         }
+        stage('🗂 Backup Previous JAR') {
+            steps {
+                script {
+                    try {
+                        echo "📦 Checking for previously deployed JAR to backup..."
+                        bat """
+                        setlocal
+                        set DEPLOY_DIR=${DEPLOY_DIR}
+                        set APP_JAR=${APP_JAR}
+                        set BACKUP_DIR=%DEPLOY_DIR%\\previous_builds
+                        set TIMESTAMP=%date:~-4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+
+                        if exist "%DEPLOY_DIR%\\%APP_JAR%" (
+                            echo 🕒 Previous JAR found at "%DEPLOY_DIR%\\%APP_JAR%"
+                            if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
+                            echo Moving old JAR to "%BACKUP_DIR%\\%APP_JAR%_%TIMESTAMP%"
+                            move "%DEPLOY_DIR%\\%APP_JAR%" "%BACKUP_DIR%\\%APP_JAR%_%TIMESTAMP%" >nul
+                            echo ✅ Backup completed successfully.
+                        ) else (
+                            echo ⚠️ No previous JAR found. Skipping backup.
+                        )
+                        endlocal
+                        """
+                    } catch (err) {
+                        echo "⚠️ Backup Stage Warning: ${err.getMessage()}"
+                    }
+                }
+            }
+        }
     }
 
     post {
