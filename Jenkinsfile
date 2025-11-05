@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'MAVEN_HOME'     // Configure Maven in Jenkins (Manage Jenkins → Global Tool Configuration)
+        maven 'maven'     // Configure Maven in Jenkins (Manage Jenkins → Global Tool Configuration)
         jdk 'JDK17'            // Configure JDK in Jenkins with this name
     }
 
