@@ -124,12 +124,12 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo 🟢 Starting Spring Boot service...
-                        java -jar %APP_JAR%
+                        powershell -Command "Start-Process 'java' '-jar ${APP_JAR}' -NoNewWindow -RedirectStandardOutput '${DEPLOY_DIR}\\service.log' -RedirectStandardError '${DEPLOY_DIR}\\service.log'"
 
                         echo ✅ Application launch command executed.
 
                         ping -n 6 127.0.0.1 >nul
-                        endlocal
+                        exit /b 0
                         """
                     } catch (err) {
                         error("❌ Deployment or Startup Failed: ${err.getMessage()}")
