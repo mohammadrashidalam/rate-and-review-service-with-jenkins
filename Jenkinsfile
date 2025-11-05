@@ -38,7 +38,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo "🚀 Deploying Rate-Service..."
+                echo " Deploying Rate-Service..."
 
                         // Stop old app safely
                         bat '"%DEPLOY_DIR%\\stop.bat"'
@@ -47,14 +47,14 @@ pipeline {
                         bat """
                         echo Copying new JAR file...
                         if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
-                        copy target\\rate-service.jar "%DEPLOY_DIR%" /Y
+                        copy target\\rate-and-review-service.jar "%DEPLOY_DIR%" /Y
                         """
 
                         // Start new version
                         bat """
                         echo Starting new Rate-Service application...
                         cd "%DEPLOY_DIR%"
-                        start java -jar rate-service.jar
+                        start java -jar rate-and-review-service.jar
                         """
             }
         }
