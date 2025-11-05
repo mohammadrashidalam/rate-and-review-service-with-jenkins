@@ -20,7 +20,7 @@ pipeline {
                 script {
                     try {
                         echo "📥 Fetching latest source code from GitHub repository..."
-                        git branch: 'main', url: 'https://github.com/your-repo/rate-and-review-service.git'
+                        git branch: 'main', url: 'https://github.com/mohammadrashidalam/rate-and-review-service-with-jenkins.git'
                     } catch (err) {
                         error("❌ Code Checkout Failed: ${err.getMessage()}")
                     }
