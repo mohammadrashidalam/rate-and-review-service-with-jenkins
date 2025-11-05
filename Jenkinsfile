@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 echo "📥 Pulling latest code from Git..."
-                git branch: 'main', url: 'https://github.com/your-repo/rate-service.git'
+                git branch: 'main', url: 'https://github.com/mohammadrashidalam/rate-and-review-service-with-jenkins.git'
             }
         }
 
