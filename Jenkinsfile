@@ -122,9 +122,20 @@ pipeline {
                             exit /b 1
                         )
 
+                     :: ✅ Check if MongoDB is running
+                        echo Checking MongoDB service on port 27017...
+                        netstat -ano | findstr :27017 >nul
+                        if %errorlevel% neq 0 (
+                            echo ❌ MongoDB not running! Please start MongoDB before deploying. >> service.log
+                            echo ❌ Deployment stopped due to missing MongoDB instance.
+                            exit /b 1
+                        ) else (
+                            echo ✅ MongoDB is running on port 27017. Proceeding with app start... >> service.log
+                        )
+
                         cd "%DEPLOY_DIR%"
                         echo 🟢 Starting Spring Boot service...
-                        powershell -Command "Start-Process 'cmd.exe' '/c java -jar rate-and-review-service.jar >> C:\\deployments\\rate-service\\service.log 2>&1' -NoNewWindow"
+                        start "RateService" /MIN cmd /c "java -jar rate-and-review-service.jar >> service.log 2>&1"
 
                         echo ✅ Application launch command executed.
 
