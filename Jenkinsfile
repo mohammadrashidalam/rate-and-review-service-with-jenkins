@@ -108,8 +108,8 @@ pipeline {
 
                         bat """
                         setlocal
-                        set DEPLOY_DIR=%DEPLOY_DIR%
-                        set APP_JAR=%APP_JAR%
+                        set DEPLOY_DIR=E:\\Practice\\Jenkins\\deployments\\rate-service
+                        set APP_JAR=rate-and-review-service.jar
 
                         echo [INFO] Deploying new JAR to "%DEPLOY_DIR%"...
                         if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
@@ -122,23 +122,10 @@ pipeline {
                             exit /b 1
                         )
 
-                        echo [INFO] Checking MongoDB service on port 27017...
-                        netstat -ano | findstr :27017 >nul
-                        if %errorlevel% neq 0 (
-                            echo [ERROR] MongoDB not running! Please start MongoDB before deploying. >> service.log
-                            exit /b 1
-                        ) else (
-                            echo [INFO] MongoDB is running on port 27017. Proceeding with app start... >> service.log
-                        )
-
                         cd "%DEPLOY_DIR%"
                         echo [INFO] Starting Spring Boot service...
-                        java -jar %APP_JAR%
+                        java -jar "%APP_JAR%" >> service.log 2>&1
 
-                        REM Wait a few seconds
-                        ping -n 6 127.0.0.1 >nul
-
-                        exit /b 0
                         endlocal
                         """
                     } catch (err) {
@@ -147,6 +134,8 @@ pipeline {
                 }
             }
         }
+
+
         stage('🩺 Verify Application Health') {
             steps {
                 script {
