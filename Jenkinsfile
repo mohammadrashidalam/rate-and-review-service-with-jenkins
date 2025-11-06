@@ -40,38 +40,41 @@ pipeline {
                 }
             }
         }
-        stage(' Stop Existing Application on Port 8282') {
-            steps {
-                script {
-                       @echo off
-                    try {
-                        echo " Checking and stopping any old running instance on port 8282..."
 
-                       setlocal enabledelayedexpansion
+stage('Stop Existing Application on Port 8282') {
+    steps {
+        script {
+            try {
+                echo "Checking and stopping any old running instance on port 8282..."
 
-                       set "foundProcess=false"
+                bat """
+                @echo off
+                setlocal enabledelayedexpansion
 
-                       for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
-                           echo Killing process on port 8282 (PID %%a)...
-                           taskkill /F /PID %%a >nul 2>&1
-                           set "foundProcess=true"
-                       )
+                set "foundProcess=false"
 
-                       echo foundProcess = !foundProcess!
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
+                    echo Killing process on port 8282 (PID %%a)...
+                    taskkill /F /PID %%a >nul 2>&1
+                    set "foundProcess=true"
+                )
 
-                       if "!foundProcess!"=="false" (
-                           echo No process found running on port 8282.
-                       ) else (
-                           echo Old process stopped successfully on port 8282.
-                       )
+                echo foundProcess = !foundProcess!
 
-                       endlocal
-                    } catch (err) {
-                        echo " Stop stage encountered an error, but continuing. ${err.getMessage()}"
-                    }
-                }
+                if "!foundProcess!"=="false" (
+                    echo No process found running on port 8282.
+                ) else (
+                    echo Old process stopped successfully on port 8282.
+                )
+
+                endlocal
+                """
+            } catch (err) {
+                echo "Stop stage encountered an error, but continuing. ${err.getMessage()}"
             }
         }
+    }
+}
 
 
     }
