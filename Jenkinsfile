@@ -120,7 +120,6 @@ pipeline {
                       $appJar    = $env:APP_JAR
                       $targetJar = "target\\$appJar"
                       $destJar   = Join-Path $deployDir $appJar
-                      $logFile   = Join-Path $deployDir "service.log"
 
                       if (Test-Path $targetJar) {
                           Write-Output "[SUCCESS] JAR found in target folder."
@@ -130,13 +129,12 @@ pipeline {
                           Set-Location $deployDir
                           Write-Output "[INFO] Starting Spring Boot service in background..."
 
-                          Start-Process -FilePath "java" `
-                                        -ArgumentList "-jar `"$appJar`"" `
-                                        -RedirectStandardOutput $logFile `
-                                        -RedirectStandardError $logFile `
+                          Start-Process -FilePath "cmd" `
+                                        -ArgumentList "/c java -jar `"$appJar`" >> service.log 2>&1" `
+                                        -WorkingDirectory $deployDir `
                                         -NoNewWindow
 
-                          Write-Output "[INFO] Application launch command issued. Logs redirected to $logFile"
+                          Write-Output "[INFO] Application launch command issued. Logs redirected to service.log"
                       }
                       else {
                           Write-Output "[ERROR] JAR not found in target folder!"
@@ -149,6 +147,7 @@ pipeline {
               }
           }
       }
+
 
 
     }
