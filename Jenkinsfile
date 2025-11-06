@@ -47,28 +47,19 @@ stage('Stop Existing Application on Port 8282') {
             try {
                 echo "Checking and stopping any old running instance on port 8282..."
 
-                bat '''
-                @echo off
-                setlocal enabledelayedexpansion
-
-                set "foundProcess=false"
-
-                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
-                    echo Killing process on port 8282 (PID %%a)...
-                    taskkill /F /PID %%a >nul 2>&1
-                    set "foundProcess=true"
-                )
-
-                echo foundProcess = !foundProcess!
-
-                if "!foundProcess!"=="false" (
-                    echo No process found running on port 8282.
-                ) else (
-                    echo Old process stopped successfully on port 8282.
-                )
-
-                endlocal
-                '''
+                    powershell '''
+                    $processes = netstat -ano | Select-String ":8282"
+                    if ($processes) {
+                        foreach ($line in $processes) {
+                            $pid = ($line.ToString().Split()[-1])
+                            Write-Output "Killing process on port 8282 (PID $pid)..."
+                            Stop-Process -Id $pid -Force
+                        }
+                        Write-Output "Old process stopped successfully on port 8282."
+                    } else {
+                        Write-Output "No process found running on port 8282."
+                    }
+                    '''
             } catch (err) {
                 echo "Stop stage encountered an error, but continuing. ${err.getMessage()}"
             }
