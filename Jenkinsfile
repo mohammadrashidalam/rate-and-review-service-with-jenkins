@@ -132,7 +132,7 @@ pipeline {
                           Start-Process -FilePath "cmd" `
                                         -ArgumentList "/c java -jar `"$appJar`" >> service.log 2>&1" `
                                         -WorkingDirectory $deployDir `
-                                        -NoNewWindow
+                                        -WindowStyle Normal
 
                           Write-Output "[INFO] Application launch command issued. Logs redirected to service.log"
                       }
