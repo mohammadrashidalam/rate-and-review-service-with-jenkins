@@ -134,7 +134,8 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo [INFO] Starting Spring Boot service...
-                        start /B java -jar rate-and-review-service.jar >> service.log 2>&1
+                        powershell -Command "Start-Process -NoNewWindow -WindowStyle Hidden -FilePath 'java' -ArgumentList '-jar','rate-and-review-service.jar' -WorkingDirectory 'C:\deployments\rate-service' -RedirectStandardOutput 'service.log' -RedirectStandardError 'service.log'"
+
 
 
                         ping -n 6 127.0.0.1 >nul
