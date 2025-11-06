@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DEPLOY_DIR = "C:\\deployments\\rate-service"
+        DEPLOY_DIR = "E:\\Practice\\Jenkins\\deployments\\rate-service"
         APP_JAR = "rate-and-review-service.jar"
         PORT = "8282"
         HEALTH_URL = "http://localhost:8282/actuator/health"
@@ -134,10 +134,7 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo [INFO] Starting Spring Boot service...
-                        powershell -Command "Start-Process -NoNewWindow -WindowStyle Hidden -FilePath 'java' -ArgumentList '-jar','rate-and-review-service.jar' -WorkingDirectory 'C:\\deployments\\rate-service' -RedirectStandardOutput 'service.log' -RedirectStandardError 'service.log'"
-
-
-
+                        start /B java -jar rate-and-review-service.jar >> service.log 2>&1
                         ping -n 6 127.0.0.1 >nul
 
                         curl -s http://localhost:8282/actuator/health | findstr /C:"UP" >nul
