@@ -134,7 +134,7 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo [INFO] Starting Spring Boot service...
-                        start "RateService" /MIN cmd /c "java -jar rate-and-review-service.jar >> service.log 2>&1"
+                        start "RateService" /MIN cmd /k "java -jar rate-and-review-service.jar >> service.log 2>&1"
 
                         ping -n 6 127.0.0.1 >nul
 
