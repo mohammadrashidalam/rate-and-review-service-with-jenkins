@@ -133,7 +133,7 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo [INFO] Starting Spring Boot service...
-                        java -jar "%APP_JAR%"
+                        java -jar %APP_JAR%
 
                         REM Wait a few seconds
                         ping -n 6 127.0.0.1 >nul
