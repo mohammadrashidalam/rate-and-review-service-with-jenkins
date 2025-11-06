@@ -108,12 +108,12 @@ pipeline {
 
                         bat """
                         setlocal
-                        if exist "target\%APP_JAR%" (
+                        if exist "target\\%APP_JAR%" (
                             echo [SUCCESS] JAR found in target folder.
                             echo Copying JAR to deployment directory...
-                            copy "target\%APP_JAR%" "%DEPLOY_DIR%\%APP_JAR%" /Y
+                            copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
                             echo [INFO] Starting application...
-                            java -jar "%DEPLOY_DIR%\%APP_JAR%"
+                            java -jar "%DEPLOY_DIR%\\%APP_JAR%"
                         ) else (
                             echo [ERROR] JAR not found in target folder!
                             echo [INFO] Please build the project using Maven before deployment.
