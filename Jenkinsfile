@@ -113,7 +113,7 @@ pipeline {
                             echo Copying JAR to deployment directory...
                             copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
                             echo [INFO] Starting application...
-                            java -jar "%DEPLOY_DIR%\\%APP_JAR%" >> service.log 2>&1
+                           start "" java -jar "%APP_JAR%" >> service.log 2>&1
                         ) else (
                             echo [ERROR] JAR not found in target folder!
                             echo [INFO] Please build the project using Maven before deployment.
