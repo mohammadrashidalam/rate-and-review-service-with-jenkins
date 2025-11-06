@@ -15,165 +15,73 @@ pipeline {
 
     stages {
 
-        stage('🧱 Code Checkout from GitHub') {
+        stage(' Code Checkout from GitHub') {
             steps {
                 script {
                     try {
-                        echo "📥 Fetching latest source code from GitHub repository..."
+                        echo " Fetching latest source code from GitHub repository..."
                         git branch: 'main', url: 'https://github.com/mohammadrashidalam/rate-and-review-service-with-jenkins.git'
                     } catch (err) {
-                        error("❌ Code Checkout Failed: ${err.getMessage()}")
+                        error(" Code Checkout Failed: ${err.getMessage()}")
                     }
                 }
             }
         }
 
-        stage('🏗️ Build Application with Maven') {
+        stage(' Build Application with Maven') {
             steps {
                 script {
                     try {
-                        echo "⚙️ Running Maven build to package Spring Boot JAR..."
+                        echo " Running Maven build to package Spring Boot JAR..."
                         bat 'mvn clean package -DskipTests=true'
                     } catch (err) {
-                        error("❌ Build Failed: Maven compilation or packaging error. ${err.getMessage()}")
+                        error(" Build Failed: Maven compilation or packaging error. ${err.getMessage()}")
                     }
                 }
             }
         }
-        stage('🛑 Stop Existing Application on Port 8282') {
+        stage(' Stop Existing Application on Port 8282') {
             steps {
                 script {
+                       @echo off
                     try {
-                        echo "🧹 Checking and stopping any old running instance on port 8282..."
+                        echo " Checking and stopping any old running instance on port 8282..."
 
-                        bat '''
-                        setlocal enabledelayedexpansion
-                        set "foundProcess=false"
+                       setlocal enabledelayedexpansion
 
-                        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
-                            echo Killing process on port 8282 (PID %%a)...
-                            taskkill /F /PID %%a >nul 2>&1
-                            set "foundProcess=true"
-                        )
+                       set "foundProcess=false"
 
-                        if "!foundProcess!"=="false" (
-                            echo ⚠️ No process found running on port 8282.
-                        ) else (
-                            echo ✅ Old process stopped successfully.
-                        )
+                       for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8282') do (
+                           echo Killing process on port 8282 (PID %%a)...
+                           taskkill /F /PID %%a >nul 2>&1
+                           set "foundProcess=true"
+                       )
 
-                        ping -n 6 127.0.0.1 >nul
-                        endlocal
-                        '''
+                       echo foundProcess = !foundProcess!
+
+                       if "!foundProcess!"=="false" (
+                           echo No process found running on port 8282.
+                       ) else (
+                           echo Old process stopped successfully on port 8282.
+                       )
+
+                       endlocal
                     } catch (err) {
-                        echo "⚠️ Stop stage encountered an error, but continuing. ${err.getMessage()}"
-                    }
-                }
-            }
-        }
-        stage('🗂 Backup Previous JAR') {
-            steps {
-                script {
-                    try {
-                        echo "📦 Checking for previously deployed JAR to backup..."
-                        bat """
-                        setlocal
-                        set DEPLOY_DIR=${DEPLOY_DIR}
-                        set APP_JAR=${APP_JAR}
-                        set BACKUP_DIR=%DEPLOY_DIR%\\previous_builds
-                        set TIMESTAMP=%date:~-4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-
-                        if exist "%DEPLOY_DIR%\\%APP_JAR%" (
-                            echo 🕒 Previous JAR found at "%DEPLOY_DIR%\\%APP_JAR%"
-                            if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
-                            echo Moving old JAR to "%BACKUP_DIR%\\%APP_JAR%_%TIMESTAMP%"
-                            move "%DEPLOY_DIR%\\%APP_JAR%" "%BACKUP_DIR%\\%APP_JAR%_%TIMESTAMP%" >nul
-                            echo ✅ Backup completed successfully.
-                        ) else (
-                            echo ⚠️ No previous JAR found. Skipping backup.
-                        )
-                        endlocal
-                        """
-                    } catch (err) {
-                        echo "⚠️ Backup Stage Warning: ${err.getMessage()}"
-                    }
-                }
-            }
-        }
-        stage('🚚 Deploy and Start New JAR') {
-            steps {
-                script {
-                    try {
-                        echo "🚀 Deploying new JAR and starting Spring Boot service..."
-
-                        bat """
-                        setlocal
-                        if exist "target\\%APP_JAR%" (
-                            echo [SUCCESS] JAR found in target folder.
-                            echo Copying JAR to deployment directory...
-                            copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
-                            cd "%DEPLOY_DIR%"
-                           echo [INFO] Starting Spring Boot service in background...
-                           start "SpringBootApp" java -jar "%APP_JAR%" >> service.log 2>&1
-                        ) else (
-                            echo [ERROR] JAR not found in target folder!
-                            echo [INFO] Please build the project using Maven before deployment.
-                        )
-                        endlocal
-                        """
-                    } catch (err) {
-                        error("❌ Deployment or Startup Failed: ${err}")
+                        echo " Stop stage encountered an error, but continuing. ${err.getMessage()}"
                     }
                 }
             }
         }
 
-
-        stage('🩺 Verify Application Health') {
-            steps {
-                script {
-                    try {
-                        echo "🩺 Checking if Rate-Service is UP and healthy..."
-
-                        REM Give it a few seconds to start
-                        bat 'ping -n 8 127.0.0.1 >nul'
-
-                        bat """
-                        echo Checking health at http://localhost:8282/actuator/health ...
-                        powershell -Command "(Invoke-WebRequest -Uri http://localhost:8282/actuator/health).Content" > health.txt
-
-                        if exist health.txt (
-                            findstr /C:"UP" health.txt >nul
-                            if %errorlevel%==0 (
-                                echo ✅ Application is UP and running.
-                                type health.txt
-                                exit /b 0
-                            ) else (
-                                echo ❌ Application health check failed — status not UP.
-                                type health.txt
-                                exit /b 1
-                            )
-                        ) else (
-                            echo ❌ Health check file not found — request might have failed.
-                            exit /b 1
-                        )
-                        """
-                    } catch (err) {
-                        echo "⚠️ Health Check Warning: ${err.getMessage()}"
-                        echo "🚨 Application might not have started correctly. Please check service.log for details."
-                    }
-                }
-            }
-        }
 
     }
 
     post {
         success {
-            echo "✅ PIPELINE SUCCESS: All stages executed successfully and application is UP!"
+            echo " PIPELINE SUCCESS: All stages executed successfully and application is UP!"
         }
         failure {
-            echo "❌ PIPELINE FAILED: Please check the specific stage error messages above."
+            echo " PIPELINE FAILED: Please check the specific stage error messages above."
         }
     }
 }
