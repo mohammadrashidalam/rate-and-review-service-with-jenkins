@@ -40,7 +40,13 @@ pipeline {
                 }
             }
         }
-
+         stage('Test') {
+                    steps {
+                        echo "🧪 Running unit tests script..."
+                        bat 'mvn test'
+                         echo "🧪 Finish unit tests script..."
+                    }
+                }
         stage('Stop Existing Application on Port 8282') {
             steps {
                 script {
