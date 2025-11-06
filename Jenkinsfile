@@ -109,42 +109,47 @@ pipeline {
                }
            }
        }
-       stage('Deploy and Start New JAR') {
-           steps {
-               script {
-                   try {
-                       echo "Deploying new JAR and starting Spring Boot service..."
+      stage('Deploy and Start New JAR') {
+          steps {
+              script {
+                  try {
+                      echo "Deploying new JAR and starting Spring Boot service..."
 
-                       bat '''
-                       @echo off
-                       setlocal
+                      powershell '''
+                      $deployDir = $env:DEPLOY_DIR
+                      $appJar    = $env:APP_JAR
+                      $targetJar = "target\\$appJar"
+                      $destJar   = Join-Path $deployDir $appJar
+                      $logFile   = Join-Path $deployDir "service.log"
 
-                       rem Define deployment directory and JAR name from pipeline environment
-                       set "DEPLOY_DIR=%DEPLOY_DIR%"
-                       set "APP_JAR=%APP_JAR%"
+                      if (Test-Path $targetJar) {
+                          Write-Output "[SUCCESS] JAR found in target folder."
+                          Write-Output "Copying JAR to deployment directory..."
+                          Copy-Item $targetJar $destJar -Force
 
-                       if exist "target\\%APP_JAR%" (
-                           echo [SUCCESS] JAR found in target folder.
-                           echo Copying JAR to deployment directory...
-                           copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
+                          Set-Location $deployDir
+                          Write-Output "[INFO] Starting Spring Boot service in background..."
 
-                           cd "%DEPLOY_DIR%"
-                           echo [INFO] Starting Spring Boot service in background...
+                          Start-Process -FilePath "java" `
+                                        -ArgumentList "-jar `"$appJar`"" `
+                                        -RedirectStandardOutput $logFile `
+                                        -RedirectStandardError $logFile `
+                                        -NoNewWindow
 
-                           start /b cmd /c "java -jar \"%APP_JAR%\" >> service.log 2>&1"
-                       ) else (
-                           echo [ERROR] JAR not found in target folder!
-                           echo [INFO] Please build the project using Maven before deployment.
-                       )
+                          Write-Output "[INFO] Application launch command issued. Logs redirected to $logFile"
+                      }
+                      else {
+                          Write-Output "[ERROR] JAR not found in target folder!"
+                          Write-Output "[INFO] Please build the project using Maven before deployment."
+                      }
+                      '''
+                  } catch (err) {
+                      error("Deployment or Startup Failed: ${err}")
+                  }
+              }
+          }
+      }
 
-                       endlocal
-                       '''
-                   } catch (err) {
-                       error("Deployment or Startup Failed: ${err}")
-                   }
-               }
-           }
-       }
 
     }
 
