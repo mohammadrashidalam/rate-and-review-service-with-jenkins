@@ -47,7 +47,7 @@ stage('Stop Existing Application on Port 8282') {
             try {
                 echo "Checking and stopping any old running instance on port 8282..."
 
-                bat """
+                bat '''
                 @echo off
                 setlocal enabledelayedexpansion
 
@@ -68,7 +68,7 @@ stage('Stop Existing Application on Port 8282') {
                 )
 
                 endlocal
-                """
+                '''
             } catch (err) {
                 echo "Stop stage encountered an error, but continuing. ${err.getMessage()}"
             }
