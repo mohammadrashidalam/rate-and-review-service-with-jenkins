@@ -108,28 +108,20 @@ pipeline {
 
                         bat """
                         setlocal
-                        set DEPLOY_DIR=E:\\Practice\\Jenkins\\deployments\\rate-service
-                        set APP_JAR=rate-and-review-service.jar
-
-                        echo [INFO] Deploying new JAR to "%DEPLOY_DIR%"...
-                        if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
-
-                        if exist "target\\%APP_JAR%" (
-                            copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
-                            echo [SUCCESS] New JAR copied successfully.
+                        if exist "target\%APP_JAR%" (
+                            echo [SUCCESS] JAR found in target folder.
+                            echo Copying JAR to deployment directory...
+                            copy "target\%APP_JAR%" "%DEPLOY_DIR%\%APP_JAR%" /Y
+                            echo [INFO] Starting application...
+                            java -jar "%DEPLOY_DIR%\%APP_JAR%"
                         ) else (
                             echo [ERROR] JAR not found in target folder!
-                            exit /b 1
+                            echo [INFO] Please build the project using Maven before deployment.
                         )
-
-                        cd "%DEPLOY_DIR%"
-                        echo [INFO] Starting Spring Boot service...
-                        java -jar "%APP_JAR%" >> service.log 2>&1
-
                         endlocal
                         """
                     } catch (err) {
-                        error("❌ Deployment or Startup Failed: ${err.getMessage()}")
+                        error("❌ Deployment or Startup Failed: ${err}")
                     }
                 }
             }
