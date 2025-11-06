@@ -41,34 +41,31 @@ pipeline {
             }
         }
 
-  stage('Stop Existing Application on Port 8282') {
-      steps {
-          script {
-              try {
-                  echo "Checking and stopping any old running instance on port 8282..."
+        stage('Stop Existing Application on Port 8282') {
+            steps {
+                script {
+                    try {
+                        echo "Checking and stopping any old running instance on port 8282..."
 
-                  powershell '''
-                  $processes = netstat -ano | Select-String ":8282"
-                  if ($processes) {
-                      foreach ($line in $processes) {
-                          $procId = ($line.ToString().Split()[-1])
-                          Write-Output "Killing process on port 8282 (PID $procId)..."
-                          Stop-Process -Id $procId -Force
-                      }
-                      Write-Output "Old process stopped successfully on port 8282."
-                  } else {
-                      Write-Output "No process found running on port 8282."
-                  }
-                  '''
-              } catch (err) {
-                  echo "Stop stage encountered an error, but continuing. ${err.getMessage()}"
-              }
-          }
-      }
-  }
-
-}
-
+                        powershell '''
+                        $processes = netstat -ano | Select-String ":8282"
+                        if ($processes) {
+                            foreach ($line in $processes) {
+                                $procId = ($line.ToString().Split()[-1])
+                                Write-Output "Killing process on port 8282 (PID $procId)..."
+                                Stop-Process -Id $procId -Force
+                            }
+                            Write-Output "Old process stopped successfully on port 8282."
+                        } else {
+                            Write-Output "No process found running on port 8282."
+                        }
+                        '''
+                    } catch (err) {
+                        echo "Stop stage encountered an error, but continuing. ${err.getMessage()}"
+                    }
+                }
+            }
+        }
 
     }
 
