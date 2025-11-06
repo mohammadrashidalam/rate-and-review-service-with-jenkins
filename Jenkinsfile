@@ -108,8 +108,8 @@ pipeline {
 
                         bat """
                         setlocal
-                        set DEPLOY_DIR=${DEPLOY_DIR}
-                        set APP_JAR=${APP_JAR}
+                        set DEPLOY_DIR=%DEPLOY_DIR%
+                        set APP_JAR=%APP_JAR%
 
                         echo [INFO] Deploying new JAR to "%DEPLOY_DIR%"...
                         if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
@@ -126,7 +126,6 @@ pipeline {
                         netstat -ano | findstr :27017 >nul
                         if %errorlevel% neq 0 (
                             echo [ERROR] MongoDB not running! Please start MongoDB before deploying. >> service.log
-                            echo [ERROR] Deployment stopped due to missing MongoDB instance.
                             exit /b 1
                         ) else (
                             echo [INFO] MongoDB is running on port 27017. Proceeding with app start... >> service.log
@@ -134,10 +133,12 @@ pipeline {
 
                         cd "%DEPLOY_DIR%"
                         echo [INFO] Starting Spring Boot service...
-                        start /B java -jar rate-and-review-service.jar >> service.log 2>&1
+                        java -jar "%APP_JAR%" >> service.log 2>&1
+
+                        REM Wait a few seconds
                         ping -n 6 127.0.0.1 >nul
 
-                        curl -s http://localhost:8282/actuator/health | findstr /C:"UP" >nul
+                        powershell -Command "(Invoke-WebRequest -Uri http://localhost:8282/actuator/health).Content" | findstr /C:"UP" >nul
                         if %errorlevel%==0 (
                             echo [SUCCESS] Application is running and healthy.
                         ) else (
@@ -153,20 +154,18 @@ pipeline {
                 }
             }
         }
-
         stage('🩺 Verify Application Health') {
             steps {
                 script {
                     try {
                         echo "🩺 Checking if Rate-Service is UP and healthy..."
 
-                        // Give it a few seconds to start
+                        REM Give it a few seconds to start
                         bat 'ping -n 8 127.0.0.1 >nul'
 
-                        // Perform the health check
                         bat """
                         echo Checking health at http://localhost:8282/actuator/health ...
-                        curl -s http://localhost:8282/actuator/health > health.txt
+                        powershell -Command "(Invoke-WebRequest -Uri http://localhost:8282/actuator/health).Content" > health.txt
 
                         if exist health.txt (
                             findstr /C:"UP" health.txt >nul
@@ -180,7 +179,7 @@ pipeline {
                                 exit /b 1
                             )
                         ) else (
-                            echo ❌ Health check file not found — CURL might have failed.
+                            echo ❌ Health check file not found — request might have failed.
                             exit /b 1
                         )
                         """
@@ -191,6 +190,7 @@ pipeline {
                 }
             }
         }
+
     }
 
     post {
