@@ -109,6 +109,41 @@ pipeline {
                }
            }
        }
+       stage('Deploy and Start New JAR') {
+           steps {
+               script {
+                   try {
+                       echo "Deploying new JAR and starting Spring Boot service..."
+
+                       bat '''
+                       @echo off
+                       setlocal
+
+                       rem Define deployment directory and JAR name from pipeline environment
+                       set "DEPLOY_DIR=%DEPLOY_DIR%"
+                       set "APP_JAR=%APP_JAR%"
+
+                       if exist "target\\%APP_JAR%" (
+                           echo [SUCCESS] JAR found in target folder.
+                           echo Copying JAR to deployment directory...
+                           copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
+
+                           cd "%DEPLOY_DIR%"
+                           echo [INFO] Starting Spring Boot service in background...
+                           start "SpringBootApp" cmd /c "java -jar \"%APP_JAR%\" >> service.log 2>&1"
+                       ) else (
+                           echo [ERROR] JAR not found in target folder!
+                           echo [INFO] Please build the project using Maven before deployment.
+                       )
+
+                       endlocal
+                       '''
+                   } catch (err) {
+                       error("Deployment or Startup Failed: ${err}")
+                   }
+               }
+           }
+       }
 
     }
 
