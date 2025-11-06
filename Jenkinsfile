@@ -138,13 +138,6 @@ pipeline {
                         REM Wait a few seconds
                         ping -n 6 127.0.0.1 >nul
 
-                        powershell -Command "(Invoke-WebRequest -Uri http://localhost:8282/actuator/health).Content" | findstr /C:"UP" >nul
-                        if %errorlevel%==0 (
-                            echo [SUCCESS] Application is running and healthy.
-                        ) else (
-                            echo [WARN] Application might not be up yet. Check service.log for details.
-                        )
-
                         exit /b 0
                         endlocal
                         """
