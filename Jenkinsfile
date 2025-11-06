@@ -130,7 +130,8 @@ pipeline {
 
                            cd "%DEPLOY_DIR%"
                            echo [INFO] Starting Spring Boot service in background...
-                           start "SpringBootApp" cmd /c "java -jar \"%APP_JAR%\" >> service.log 2>&1"
+
+                           start /b cmd /c "java -jar \"%APP_JAR%\" >> service.log 2>&1"
                        ) else (
                            echo [ERROR] JAR not found in target folder!
                            echo [INFO] Please build the project using Maven before deployment.
