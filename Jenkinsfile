@@ -112,8 +112,9 @@ pipeline {
                             echo [SUCCESS] JAR found in target folder.
                             echo Copying JAR to deployment directory...
                             copy "target\\%APP_JAR%" "%DEPLOY_DIR%\\%APP_JAR%" /Y
-                            echo [INFO] Starting application...
-                           start "" java -jar "%APP_JAR%" >> service.log 2>&1
+                            cd "%DEPLOY_DIR%"
+                           echo [INFO] Starting Spring Boot service in background...
+                           start "SpringBootApp" java -jar "%APP_JAR%" >> service.log 2>&1
                         ) else (
                             echo [ERROR] JAR not found in target folder!
                             echo [INFO] Please build the project using Maven before deployment.
